@@ -136,7 +136,16 @@ const poll = async () => {
 
 if (!process.env.WEBHOOK_URL && token) {
     console.log('[BOT] Running in Polling mode...');
-    poll();
+    // Delete any existing webhook first to avoid 409 Conflict
+    axios.post(`${TELEGRAM_API}/deleteWebhook`, { drop_pending_updates: true })
+        .then(() => {
+            console.log('[BOT] Webhook cleared. Starting polling...');
+            poll();
+        })
+        .catch(err => {
+            console.warn('[BOT] Could not delete webhook, starting polling anyway:', err.message);
+            poll();
+        });
 }
 
 module.exports = {
