@@ -67,19 +67,30 @@ const handleJoinRequest = async (request) => {
         }
 
         // Approve user
-        await axios.post(`${TELEGRAM_API}/approveChatJoinRequest`, {
-            chat_id: chatId,
-            user_id: userId
-        });
-        console.log(`[INFO] User ${userId} approved.`);
+        try {
+            await axios.post(`${TELEGRAM_API}/approveChatJoinRequest`, {
+                chat_id: chatId,
+                user_id: userId
+            });
+            console.log(`[INFO] User ${userId} approved.`);
+        } catch (approveErr) {
+            const approveErrData = approveErr.response ? approveErr.response.data : approveErr.message;
+            // USER_ALREADY_PARTICIPANT or similar non-critical errors — log and continue
+            console.warn(`[BOT] Could not approve user ${userId} (may already be a member):`, approveErrData);
+        }
 
         if (inviteLink) {
-            // Revoke link
-            await axios.post(`${TELEGRAM_API}/revokeChatInviteLink`, {
-                chat_id: chatId,
-                invite_link: inviteLink
-            });
-            console.log(`[INFO] Invite link revoked: ${inviteLink}`);
+            // Revoke link — wrap separately so an expired/already-revoked link doesn't abort Meta conversion
+            try {
+                await axios.post(`${TELEGRAM_API}/revokeChatInviteLink`, {
+                    chat_id: chatId,
+                    invite_link: inviteLink
+                });
+                console.log(`[INFO] Invite link revoked: ${inviteLink}`);
+            } catch (revokeErr) {
+                const revokeErrData = revokeErr.response ? revokeErr.response.data : revokeErr.message;
+                console.warn(`[BOT] Could not revoke invite link (may already be expired/revoked):`, revokeErrData);
+            }
 
             // Get invite data from DB (contains fbp, fbc, ip, user_agent)
             const invite = await getInviteByLink(inviteLink);
