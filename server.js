@@ -28,9 +28,18 @@ app.get('/api/join', async (req, res) => {
         });
 
         const inviteLink = inviteData.invite_link;
-        await saveInvite(inviteLink, internalId);
 
-        console.log(`[INFO] Created new invite: ${inviteLink}`);
+        // Capture Meta tracking data from request
+        const meta = {
+            fbp: req.query.fbp || null,
+            fbc: req.query.fbc || null,
+            ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || null,
+            userAgent: req.headers['user-agent'] || null
+        };
+
+        await saveInvite(inviteLink, internalId, meta);
+
+        console.log(`[INFO] Created new invite: ${inviteLink} | FBP: ${meta.fbp} | FBC: ${meta.fbc} | IP: ${meta.ip}`);
         res.json({ success: true, url: inviteLink });
     } catch (error) {
         console.error('Error generating invite:', error.message);
@@ -38,9 +47,9 @@ app.get('/api/join', async (req, res) => {
     }
 });
 
-// Telegram Webhook Endpoint (for cloud hosting like Render/Railway/Koyeb)
+// Telegram Webhook Endpoint (for cloud hosting)
 app.post('/telegram/webhook', async (req, res) => {
-    res.sendStatus(200); // Respond immediately to Telegram
+    res.sendStatus(200);
     const update = req.body;
     if (update && update.chat_join_request) {
         await bot.handleJoinRequest(update.chat_join_request);

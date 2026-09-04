@@ -1,34 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Telegram Community</title>
+    <title>Join Telegram</title>
+    <meta name="description" content="Get daily premium signals straight to your Telegram. Join Real Invest Pro now.">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Meta Pixel Base Code -->
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1799101021286137');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=1799101021286137&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Base Code -->
 </head>
+
 <body>
-    <div class="background-animation">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
-    
-    <div class="container">
-        <div class="glass-card">
-            <div class="icon-container">
-                <img src="logo.webp" alt="Community Logo" class="telegram-icon">
+    <div class="page-bg">
+        <div class="card">
+            <!-- Logo Circle -->
+            <div class="logo-wrapper">
+                <div class="logo-ring">
+                    <img src="logo2.jpg" alt="Real Invest Pro Logo" class="logo-img">
+                </div>
+                <div class="verified-badge">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 13l4 4L19 7" stroke="white" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
             </div>
-            <h1>Join Our Exclusive Community</h1>
-            <p>Get access to premium content, network with top professionals, and stay ahead of the curve. Your unique invite awaits.</p>
-            
+
+            <!-- Title -->
+            <h1 class="title">𝙍𝙀𝘼𝙇 𝘾𝙃𝙄𝘾𝙆𝙀𝙉 𝙍𝙊𝘼𝘿 𝙑𝙄𝙋 𝙎𝙄𝙂𝙉𝘼𝙇</h1>
+            <div class="title-underline"></div>
+
+            <!-- Subtitle -->
+            <p class="subtitle">Daily premium signals, straight to your Telegram.</p>
+
+            <!-- Join Button -->
             <button id="join-btn" class="join-button">
+                <span class="btn-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </span>
                 <span class="btn-text">Join Telegram</span>
                 <div class="loader" id="loader"></div>
             </button>
+
+            <!-- Footer note -->
+            <p class="footer-note">Free to join · One tap to open Telegram</p>
             <p id="error-message" class="error-msg"></p>
         </div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
+
 </html>

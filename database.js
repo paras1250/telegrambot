@@ -12,7 +12,7 @@ if (databaseUrl) {
         ssl: { rejectUnauthorized: false }
     });
 
-    // Initialize Postgres table
+    // Initialize Postgres table with Meta tracking columns
     pool.query(`
         CREATE TABLE IF NOT EXISTS invites (
             id SERIAL PRIMARY KEY,
@@ -20,14 +20,24 @@ if (databaseUrl) {
             status TEXT DEFAULT 'generated',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             user_id TEXT,
-            internal_id TEXT UNIQUE
+            internal_id TEXT UNIQUE,
+            fbp TEXT,
+            fbc TEXT,
+            ip_address TEXT,
+            user_agent TEXT
         )
     `).catch(err => console.error('[DB] Error creating Postgres table:', err.message));
 
-    saveInvite = async (inviteLink, internalId) => {
+    // Also try to add columns if they don't exist (for existing databases)
+    pool.query(`ALTER TABLE invites ADD COLUMN IF NOT EXISTS fbp TEXT`).catch(() => {});
+    pool.query(`ALTER TABLE invites ADD COLUMN IF NOT EXISTS fbc TEXT`).catch(() => {});
+    pool.query(`ALTER TABLE invites ADD COLUMN IF NOT EXISTS ip_address TEXT`).catch(() => {});
+    pool.query(`ALTER TABLE invites ADD COLUMN IF NOT EXISTS user_agent TEXT`).catch(() => {});
+
+    saveInvite = async (inviteLink, internalId, meta = {}) => {
         const res = await pool.query(
-            'INSERT INTO invites (invite_link, internal_id) VALUES ($1, $2) RETURNING id',
-            [inviteLink, internalId]
+            'INSERT INTO invites (invite_link, internal_id, fbp, fbc, ip_address, user_agent) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+            [inviteLink, internalId, meta.fbp || null, meta.fbc || null, meta.ip || null, meta.userAgent || null]
         );
         return res.rows[0].id;
     };
@@ -59,17 +69,25 @@ if (databaseUrl) {
                 status TEXT DEFAULT 'generated',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 user_id TEXT,
-                internal_id TEXT UNIQUE
+                internal_id TEXT UNIQUE,
+                fbp TEXT,
+                fbc TEXT,
+                ip_address TEXT,
+                user_agent TEXT
             )`);
         }
     });
 
-    saveInvite = (inviteLink, internalId) => {
+    saveInvite = (inviteLink, internalId, meta = {}) => {
         return new Promise((resolve, reject) => {
-            db.run(`INSERT INTO invites (invite_link, internal_id) VALUES (?, ?)`, [inviteLink, internalId], function(err) {
-                if (err) reject(err);
-                else resolve(this.lastID);
-            });
+            db.run(
+                `INSERT INTO invites (invite_link, internal_id, fbp, fbc, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)`,
+                [inviteLink, internalId, meta.fbp || null, meta.fbc || null, meta.ip || null, meta.userAgent || null],
+                function(err) {
+                    if (err) reject(err);
+                    else resolve(this.lastID);
+                }
+            );
         });
     };
 
