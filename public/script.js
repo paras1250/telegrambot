@@ -16,9 +16,15 @@ function getFbc() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const joinBtn = document.getElementById('join-btn');
+    const btnText = joinBtn.querySelector('.btn-text');
     const errorMsg = document.getElementById('error-message');
 
-    joinBtn.addEventListener('click', async () => {
+    let userClicked = false;
+    let autoRedirectTimer = null;
+    let countdownInterval = null;
+
+    // --- Core join logic (shared by manual click & auto-redirect) ---
+    async function triggerJoin() {
         if (joinBtn.classList.contains('loading')) return;
 
         joinBtn.classList.add('loading');
@@ -53,5 +59,37 @@ document.addEventListener('DOMContentLoaded', () => {
             joinBtn.classList.remove('loading');
             joinBtn.disabled = false;
         }
+    }
+
+    // --- Manual click handler ---
+    joinBtn.addEventListener('click', () => {
+        userClicked = true;
+        clearTimeout(autoRedirectTimer);
+        clearInterval(countdownInterval);
+        btnText.textContent = 'Join Telegram';
+        triggerJoin();
     });
+
+    // --- Auto-redirect countdown (5 seconds) ---
+    const AUTO_REDIRECT_SECONDS = 5;
+    let remaining = AUTO_REDIRECT_SECONDS;
+
+    btnText.textContent = `Auto-joining in ${remaining}s...`;
+
+    countdownInterval = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+            btnText.textContent = `Auto-joining in ${remaining}s...`;
+        } else {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+
+    autoRedirectTimer = setTimeout(() => {
+        if (!userClicked) {
+            clearInterval(countdownInterval);
+            btnText.textContent = 'Joining...';
+            triggerJoin();
+        }
+    }, AUTO_REDIRECT_SECONDS * 1000);
 });
